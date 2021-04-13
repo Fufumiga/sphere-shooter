@@ -6,49 +6,6 @@ const context = canvas.getContext('2d');
 canvas.width = innerWidth;
 canvas.height = innerHeight;
 
-class Player {
-  constructor(x, y, radius, color) {
-    this.x = x;
-    this.y = y;
-    this.radius = radius;
-    this.color = color;
-  }
-
-  draw() {
-    context.beginPath();
-    context.arc(this.x, this.y, 
-      this.radius, 0, Math.PI*2, false);
-    
-    context.fillStyle = this.color;
-    context.fill();
-  }
-}
-
-class Projectile {
-  constructor(x, y, radius, color, velocity) {
-    this.x = x;
-    this.y = y;
-    this.radius = radius;
-    this.color = color;
-    this.velocity = velocity;
-  }
-
-  draw() {
-    context.beginPath();
-    context.arc(this.x, this.y, 
-      this.radius, 0, Math.PI*2, false);
-    
-    context.fillStyle = this.color;
-    context.fill();
-  }
-
-  update() {
-    this.draw();
-    this.x = this.x + this.velocity.x;
-    this.y = this.y + this.velocity.y;
-  }
-}
-
 class Vector2 {
   x;
   y;
@@ -68,19 +25,34 @@ class Vector2 {
     return Math.sqrt((pointA.x-pointB.x)**2 + (pointA.y-pointB.y)**2 );
   }
 }
-
-class Enemy {
-  constructor(x, y, radius, color, velocity) {
-    this.x = x;
-    this.y = y;
+class Player {
+  constructor(x, y, radius, color) {
     this.radius = radius;
     this.color = color;
-    this.velocity = velocity;
+    this.position = new Vector2(x,y);
   }
 
   draw() {
     context.beginPath();
-    context.arc(this.x, this.y, 
+    context.arc(this.position.x, this.position.y, 
+      this.radius, 0, Math.PI*2, false);
+    
+    context.fillStyle = this.color;
+    context.fill();
+  }
+}
+
+class Projectile {
+  constructor(position, radius, color, velocity) {
+    this.radius = radius;
+    this.color = color;
+    this.velocity = velocity;
+    this.position = position;
+  }
+
+  draw() {
+    context.beginPath();
+    context.arc(this.position.x, this.position.y, 
       this.radius, 0, Math.PI*2, false);
     
     context.fillStyle = this.color;
@@ -89,8 +61,33 @@ class Enemy {
 
   update() {
     this.draw();
-    this.x = this.x + this.velocity.x;
-    this.y = this.y + this.velocity.y;
+    this.position.x = this.position.x + this.velocity.x;
+    this.position.y = this.position.y + this.velocity.y;
+  }
+}
+
+
+class Enemy {
+  constructor(position, radius, color, velocity) {
+    this.radius = radius;
+    this.color = color;
+    this.velocity = velocity;
+    this.position = position;
+  }
+
+  draw() {
+    context.beginPath();
+    context.arc(this.position.x, this.position.y, 
+      this.radius, 0, Math.PI*2, false);
+    
+    context.fillStyle = this.color;
+    context.fill();
+  }
+
+  update() {
+    this.draw();
+    this.position.x = this.position.x + this.velocity.x;
+    this.position.y = this.position.y + this.velocity.y;
   }
 }
 
@@ -98,22 +95,55 @@ const midX = canvas.width / 2;
 const midY = canvas.height / 2;
 
 const player = new Player(midX, midY, 20, 'blue');
-player.draw();
 
 var projectiles = [];
 var enemies = [];
 
+function getAngleToMidScreen(x,y) {
+  const yDistance = y - midY;
+  const xDistance = x - midX;
+
+  return Math.atan2(yDistance,xDistance);
+}
+
+function getRandomBetween(min,max) {
+  return Math.random() * (max - min) + min;
+}
+
+function checkDistanceToProjectiles(enemy) {
+  projectiles.forEach(projectile => {
+    const dist = Vector2.distance(projectile.position, enemy.position);
+    console.log(dist);
+  });
+}
 function spawnEnemies() {
+
   setInterval(() => {
-    const x = 100;
-    const y = 100;
-    const radius = 20
+    const radius = getRandomBetween(9,20);
     const color = 'green';
-    const velocity = new Vector2(1,1)
-    var enemy = new Enemy(x,y,radius,color,velocity)
+
+    var x;
+    var y;
+
+    if(Math.random() < 0.5) {
+      x = Math.random() < 0.5 ? 0-radius : canvas.width+radius;
+      y = Math.random() * canvas.height;
+    } else {
+      x = Math.random() * canvas.width;
+      y = Math.random() < 0.5 ? 0-radius : canvas.height+radius;
+    }
+
+
+    const angle = Math.atan2(midY - y, midX - x);
+
+    const velocity = new Vector2(Math.cos(angle), Math.sin(angle));
+
+    const position = new Vector2(x,y);
+    var enemy = new Enemy(position,radius,color,velocity);
 
     enemies.push(enemy);
   }, 1000 );
+
 }
 
 function animate() {
@@ -128,20 +158,18 @@ function animate() {
 
   enemies.forEach(enemy => {
     enemy.update();
+    checkDistanceToProjectiles(enemy);
   })
 }
 
 addEventListener('click', (event) => {
-  const yDistance = event.clientY - midY;
-  const xDistance = event.clientX - midX;
-
-  const angle = Math.atan2(yDistance,xDistance);
+  const angle = getAngleToMidScreen(event.clientX, event.clientY);
 
   const velocity = new Vector2();
   velocity.x = Math.cos(angle);
   velocity.y = Math.sin(angle);
 
-  const projectile = new Projectile(midX, midY,
+  const projectile = new Projectile(new Vector2(midX,midY),
     7, 'red', velocity);
 
   projectiles.push(projectile);

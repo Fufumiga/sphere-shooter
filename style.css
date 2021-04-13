@@ -3,6 +3,13 @@ html, body {
   padding: 0 !important;
 }
 
+html {
+  max-width: 700px;
+  min-width: 700px;
+  min-height: 700px;
+  max-height: 700px;
+}
+
 .main-canvas {
   position: relative;
 }
