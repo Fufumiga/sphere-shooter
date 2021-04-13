@@ -10,6 +10,10 @@ html {
   max-height: 700px;
 }
 
-.main-canvas {
+.wrapper {
   position: relative;
+  height: 700px;
+}
+.main-canvas {
+  position: absolute;
 }
