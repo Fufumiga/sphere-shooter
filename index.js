@@ -115,8 +115,8 @@ function spawnEnemies() {
   setInterval(() => {
     const radius = getRandomBetween(9,20);
 
-    var randomColor = Math.floor(Math.random()*16777215).toString(16);
-    const color = '#' + randomColor;
+    const randomColor = Math.random() * 360;
+    const color = 'hsl(' + randomColor + ',50%,50%)';
     
     var x;
     var y;
