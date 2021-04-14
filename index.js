@@ -1,5 +1,5 @@
 var game = {};
-game.restart = () => {};
+game.restart = () => { };
 
 const canvas = document.querySelector('canvas');
 const context = canvas.getContext('2d');
@@ -21,21 +21,21 @@ class Vector2 {
   /** @type {Vector2} */ static left = new Vector2(-1, 0);
 
   static distance(pointA, pointB) {
-    return Math.sqrt((pointA.x-pointB.x)**2 + (pointA.y-pointB.y)**2 );
+    return Math.sqrt((pointA.x - pointB.x) ** 2 + (pointA.y - pointB.y) ** 2);
   }
 }
 class Player {
   constructor(x, y, radius, color) {
     this.radius = radius;
     this.color = color;
-    this.position = new Vector2(x,y);
+    this.position = new Vector2(x, y);
   }
 
   draw() {
     context.beginPath();
-    context.arc(this.position.x, this.position.y, 
-      this.radius, 0, Math.PI*2, false);
-    
+    context.arc(this.position.x, this.position.y,
+      this.radius, 0, Math.PI * 2, false);
+
     context.fillStyle = this.color;
     context.fill();
   }
@@ -51,9 +51,9 @@ class Projectile {
 
   draw() {
     context.beginPath();
-    context.arc(this.position.x, this.position.y, 
-      this.radius, 0, Math.PI*2, false);
-    
+    context.arc(this.position.x, this.position.y,
+      this.radius, 0, Math.PI * 2, false);
+
     context.fillStyle = this.color;
     context.fill();
   }
@@ -67,18 +67,25 @@ class Projectile {
 
 
 class Enemy {
+  /** @type {Vector2} */ position;
+  /** @type {Vector2} */ velocity;
+  /** @type {number} */ radius;
+  /** @type {number} */ points;
+  /** @type {string} */color;
+
   constructor(position, radius, color, velocity) {
     this.radius = radius;
     this.color = color;
     this.velocity = velocity;
     this.position = position;
+    this.points = radius;
   }
 
   draw() {
     context.beginPath();
-    context.arc(this.position.x, this.position.y, 
-      this.radius, 0, Math.PI*2, false);
-    
+    context.arc(this.position.x, this.position.y,
+      this.radius, 0, Math.PI * 2, false);
+
     context.fillStyle = this.color;
     context.fill();
   }
@@ -90,6 +97,35 @@ class Enemy {
   }
 }
 
+class Particle {
+  constructor(position, radius, color, velocity) {
+    this.radius = radius;
+    this.color = color;
+    this.velocity = velocity;
+    this.position = position;
+    this.alpha = 1;
+  }
+
+  draw() {
+    context.save();
+    context.globalAlpha = this.alpha;
+    context.beginPath();
+    context.arc(this.position.x, this.position.y,
+      this.radius, 0, Math.PI * 2, false);
+
+    context.fillStyle = this.color;
+    context.fill();
+    context.restore();
+  }
+
+  update() {
+    this.draw();
+    this.position.x = this.position.x + this.velocity.x;
+    this.position.y = this.position.y + this.velocity.y;
+    this.alpha -= 0.01;
+  }
+}
+
 const midX = canvas.width / 2;
 const midY = canvas.height / 2;
 
@@ -97,70 +133,95 @@ const player = new Player(midX, midY, 20, 'white');
 
 var projectiles = [];
 var enemies = [];
+var particles = [];
 var animationID;
 
-function getAngleToMidScreen(x,y) {
+function getAngleToMidScreen(x, y) {
   const yDistance = y - midY;
   const xDistance = x - midX;
 
-  return Math.atan2(yDistance,xDistance);
+  return Math.atan2(yDistance, xDistance);
 }
 
-function getRandomBetween(min,max) {
+function getRandomBetween(min, max) {
   return Math.random() * (max - min) + min;
 }
 
 function spawnEnemies() {
-  
+
   setInterval(() => {
-    const radius = getRandomBetween(9,20);
+    const radius = getRandomBetween(9, 60);
 
     const randomColor = Math.random() * 360;
     const color = 'hsl(' + randomColor + ',50%,50%)';
-    
+
     var x;
     var y;
-    
-    if(Math.random() < 0.5) {
-      x = Math.random() < 0.5 ? 0-radius : canvas.width+radius;
+
+    if (Math.random() < 0.5) {
+      x = Math.random() < 0.5 ? 0 - radius : canvas.width + radius;
       y = Math.random() * canvas.height;
     } else {
       x = Math.random() * canvas.width;
-      y = Math.random() < 0.5 ? 0-radius : canvas.height+radius;
+      y = Math.random() < 0.5 ? 0 - radius : canvas.height + radius;
     }
-    
-    
+
+
     const angle = Math.atan2(midY - y, midX - x);
-    
+
     const velocity = new Vector2(Math.cos(angle), Math.sin(angle));
-    
-    const position = new Vector2(x,y);
-    var enemy = new Enemy(position,radius,color,velocity);
-    
+
+    const position = new Vector2(x, y);
+    var enemy = new Enemy(position, radius, color, velocity);
+
     enemies.push(enemy);
-  }, 1000 );
-  
+  }, 1000);
+
 }
 
-function checkDistanceToProjectiles(enemy, enIndex) { 
-  projectiles.forEach((projectile, prIndex ) => {
+function checkDistanceToProjectiles(enemy, enIndex) {
+  projectiles.forEach((projectile, prIndex) => {
     const dist = Vector2.distance(projectile.position, enemy.position);
 
-    if(dist - enemy.radius - projectile.radius < 1){
+    if (dist - enemy.radius - projectile.radius < 1) {
       setTimeout(() => { //previne um "flash" quando inimigo é destruído
-        projectiles.splice(prIndex,1);
-        enemies.splice(enIndex,1);
+        projectiles.splice(prIndex, 1);
+        spawnParticles(projectile, enemy.color);
+        hit(enemy, enIndex);
       }, 0)
     }
   });
+}
+
+function hit(enemy, index) {
+
+  if (enemy.radius > 30) {
+    gsap.to(enemy, {
+      radius: enemy.radius - 20
+    });
+  } else {
+    enemies.splice(index, 1);
+  }
+}
+
+function spawnParticles(projectile, enemyColor) {
+  for (let index = 0; index < 10; index++) {
+    const velocity = new Vector2((Math.random() - 0.5) * Math.random() * 5, 
+    (Math.random() - 0.5) * Math.random() * 5);
+    let particle = new Particle(new Vector2(projectile.position.x, projectile.position.y),
+      3, enemyColor, velocity);
+    
+    particles.push(particle);
+  }
 }
 
 function updateEnemies() {
   enemies.forEach((enemy, index) => {
     enemy.update();
     const distToPlayer = Vector2.distance(player.position, enemy.position);
-    
-    if(distToPlayer - enemy.radius - player.radius < 0.7) {
+
+    //Enemy hitting player
+    if (distToPlayer - enemy.radius - player.radius < 0.7) {
       cancelAnimationFrame(animationID);
       isStopped = true;
     }
@@ -173,13 +234,23 @@ function updateProjectiles() {
   projectiles.forEach((projectile, index) => {
     projectile.update();
 
-    if(projectile.position.x - projectile.radius < 0 ||
-       projectile.position.x - projectile.radius > canvas.width ||
-       projectile.position.y + projectile.radius < 0 ||
-       projectile.position.y - projectile.radius > canvas.height) {
+    if (projectile.position.x - projectile.radius < 0 ||
+      projectile.position.x - projectile.radius > canvas.width ||
+      projectile.position.y + projectile.radius < 0 ||
+      projectile.position.y - projectile.radius > canvas.height) {
       setTimeout(() => {
-        projectiles.splice(index,1);
+        projectiles.splice(index, 1);
       }, 0)
+    }
+  });
+}
+
+function updateParticles() {
+  particles.forEach((particle, index) => {
+    if(particle.alpha > 0){
+      particle.update();
+    } else {
+      particles.splice(index,1);
     }
   });
 }
@@ -190,17 +261,17 @@ function animate() {
   context.fillStyle = 'rgba(0, 0, 0, 0.1)';
   context.fillRect(0, 0, canvas.width, canvas.height);
 
-  // context.clearRect(0,0, canvas.width, canvas.height);
   player.draw();
-  
+
+  updateParticles();
   updateProjectiles();
   updateEnemies();
 
 }
 
-function restartGame(){
+function restartGame() {
   projectiles = [];
-
+  particles = [];
   enemies = [];
 
   animate();
@@ -210,10 +281,10 @@ function onMouseClick(event) {
   console.log(projectiles);
   const angle = getAngleToMidScreen(event.clientX, event.clientY);
   const velocity = new Vector2();
-  velocity.x = Math.cos(angle) * 4;
-  velocity.y = Math.sin(angle) * 4;
+  velocity.x = Math.cos(angle) * 5;
+  velocity.y = Math.sin(angle) * 5;
 
-  const projectile = new Projectile(new Vector2(midX,midY),
+  const projectile = new Projectile(new Vector2(midX, midY),
     7, 'white', velocity);
 
   projectiles.push(projectile);
@@ -223,15 +294,11 @@ addEventListener('click', (event) => onMouseClick(event));
 
 addEventListener('keypress', (event) => {
   console.log(event.key);
-  if(event.key == 's') {
+  if (event.key == 's') {
     cancelAnimationFrame(animationID);
     restartGame();
   }
 })
 
-if(!isStopped){
-  animate();
-  spawnEnemies();
-} else {
-  cancelAnimationFrame(animationID);
-}
+animate();
+spawnEnemies();

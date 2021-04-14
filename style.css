@@ -13,7 +13,14 @@ html {
 .wrapper {
   position: relative;
   height: 700px;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
+
+div#score-meter {
+  color: white;
+  font-size: 50px;
+}
+
 .main-canvas {
   position: absolute;
 }
