@@ -4,6 +4,7 @@ game.restart = () => { };
 const canvas = document.querySelector('canvas');
 const context = canvas.getContext('2d');
 var isStopped;
+var score = 0;
 
 class Vector2 {
   x;
@@ -70,7 +71,7 @@ class Enemy {
   /** @type {Vector2} */ position;
   /** @type {Vector2} */ velocity;
   /** @type {number} */ radius;
-  /** @type {number} */ points;
+  /** @type {number} */ score;
   /** @type {string} */color;
 
   constructor(position, radius, color, velocity) {
@@ -78,7 +79,7 @@ class Enemy {
     this.color = color;
     this.velocity = velocity;
     this.position = position;
-    this.points = radius;
+    this.score = radius;
   }
 
   draw() {
@@ -200,8 +201,15 @@ function hit(enemy, index) {
       radius: enemy.radius - 20
     });
   } else {
+    updateScore(enemy.score);
     enemies.splice(index, 1);
   }
+}
+
+function updateScore(enemyScore) {
+  let pointsLabel = document.getElementById("score-label");
+  score = score + Math.floor(enemyScore);
+  pointsLabel.innerHTML = score;
 }
 
 function spawnParticles(projectile, enemyColor) {

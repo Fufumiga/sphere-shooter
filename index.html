@@ -10,8 +10,17 @@
     <div class="wrapper">
       <canvas height="700" width="700" class="main-canvas"></canvas>
       <div id="score-meter">
-        Score:23
+        <span>Score:</span> 
+        <span id="score-label">0</span>
       </div>
+
+      <div id="start-panel">
+        <h3>Meteor Shooter</h3>
+        <p>Aperte o botão abaixo para começar a jogar!</p>
+        <button type="button" onclick="startGame()">Jogar</button>
+      </div>
+
+
     </div>
 
     <script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.6.1/gsap.min.js"></script>
