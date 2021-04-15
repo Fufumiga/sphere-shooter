@@ -1,15 +1,17 @@
-var game = {};
-game.restart = () => { };
-
+//#region Constantes e variaveis globais
 const canvas = document.querySelector('canvas');
 const context = canvas.getContext('2d');
 const startPanel = document.getElementById('menu-panel');
 const scoreboard = document.getElementById('score-meter');
 const menuScore = document.getElementById('menu-score');
+const midX = canvas.width / 2;
+const midY = canvas.height / 2;
 var isStopped = true;
 var hasStarted = false;
 var score = 0;
+//#endregion
 
+//#region Classes
 class Vector2 {
   x;
   y;
@@ -130,16 +132,18 @@ class Particle {
     this.alpha -= 0.01;
   }
 }
+//#endregion
 
-const midX = canvas.width / 2;
-const midY = canvas.height / 2;
-
+//#region Variáveis do jogo
 const player = new Player(midX, midY, 20, 'white');
-
 var projectiles = [];
 var enemies = [];
 var particles = [];
 var animationID;
+//#endregion
+
+//#region Funções
+addEventListener('click', (event) => onMouseClick(event));
 
 function getAngleToMidScreen(x, y) {
   const yDistance = y - midY;
@@ -180,7 +184,7 @@ function spawnEnemies() {
     var enemy = new Enemy(position, radius, color, velocity);
 
     enemies.push(enemy);
-  }, 1000);
+  }, 300);
 
 }
 
@@ -301,17 +305,6 @@ function onMouseClick(event) {
   projectiles.push(projectile);
 }
 
-function endGame() {
-  cancelAnimationFrame(animationID);
-  isStopped = true;
-  startPanel.className = "";
-  scoreboard.className = "hidden";
-  startPanel.className = "";
-  menuScore.innerHTML = score;
-  document.getElementById("header").innerHTML = "GAME OVER";
-}
-
-addEventListener('click', (event) => onMouseClick(event));
 
 function resetScore() {
   score = 0;
@@ -325,7 +318,18 @@ function startGame() {
   spawnEnemies();
   startPanel.className = "hidden";
   scoreboard.className = "";
-
+  
   hasStarted = true;
   isStopped = false;
 }
+
+function endGame() {
+  cancelAnimationFrame(animationID);
+  isStopped = true;
+  startPanel.className = "";
+  scoreboard.className = "hidden";
+  startPanel.className = "";
+  menuScore.innerHTML = score;
+  document.getElementById("header").innerHTML = "GAME OVER";
+}
+//#endregion
