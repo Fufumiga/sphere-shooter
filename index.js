@@ -184,7 +184,7 @@ function spawnEnemies() {
     var enemy = new Enemy(position, radius, color, velocity);
 
     enemies.push(enemy);
-  }, 300);
+  }, 900);
 
 }
 
