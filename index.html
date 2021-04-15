@@ -9,16 +9,22 @@
   <body>
     <div class="wrapper">
       <canvas height="700" width="700" class="main-canvas"></canvas>
-      <div id="score-meter">
+      <div id="score-meter" class="hidden">
         <span>Score:</span> 
         <span id="score-label">0</span>
       </div>
 
-      <div id="start-panel">
-        <h3>Meteor Shooter</h3>
-        <p>Aperte o botão abaixo para começar a jogar!</p>
-        <button type="button" onclick="startGame()">Jogar</button>
+      <div id="menu-panel">
+        <div id="start-panel">
+          <h1 id="header">Meteor Shooter</h1><br>
+          <span>Score:</span> 
+          <span id="menu-score">0</span><br>
+
+          <button type="button" onclick="startGame()">Jogar</button>
+        </div>
       </div>
+
+      
 
 
     </div>

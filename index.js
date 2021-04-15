@@ -3,7 +3,11 @@ game.restart = () => { };
 
 const canvas = document.querySelector('canvas');
 const context = canvas.getContext('2d');
-var isStopped;
+const startPanel = document.getElementById('menu-panel');
+const scoreboard = document.getElementById('score-meter');
+const menuScore = document.getElementById('menu-score');
+var isStopped = true;
+var hasStarted = false;
 var score = 0;
 
 class Vector2 {
@@ -230,8 +234,7 @@ function updateEnemies() {
 
     //Enemy hitting player
     if (distToPlayer - enemy.radius - player.radius < 0.7) {
-      cancelAnimationFrame(animationID);
-      isStopped = true;
+      endGame();
     }
 
     checkDistanceToProjectiles(enemy, index);
@@ -277,15 +280,15 @@ function animate() {
 
 }
 
-function restartGame() {
+function restartArrays() {
   projectiles = [];
   particles = [];
   enemies = [];
-
-  animate();
 }
 
 function onMouseClick(event) {
+  if(isStopped) return;
+
   console.log(projectiles);
   const angle = getAngleToMidScreen(event.clientX, event.clientY);
   const velocity = new Vector2();
@@ -298,15 +301,31 @@ function onMouseClick(event) {
   projectiles.push(projectile);
 }
 
+function endGame() {
+  cancelAnimationFrame(animationID);
+  isStopped = true;
+  startPanel.className = "";
+  scoreboard.className = "hidden";
+  startPanel.className = "";
+  menuScore.innerHTML = score;
+  document.getElementById("header").innerHTML = "GAME OVER";
+}
+
 addEventListener('click', (event) => onMouseClick(event));
 
-addEventListener('keypress', (event) => {
-  console.log(event.key);
-  if (event.key == 's') {
-    cancelAnimationFrame(animationID);
-    restartGame();
-  }
-})
+function resetScore() {
+  score = 0;
+  document.getElementById("score-label").innerHTML = "0";
+}
 
-animate();
-spawnEnemies();
+function startGame() {
+  if (hasStarted) restartArrays();
+  resetScore();
+  animate();
+  spawnEnemies();
+  startPanel.className = "hidden";
+  scoreboard.className = "";
+
+  hasStarted = true;
+  isStopped = false;
+}

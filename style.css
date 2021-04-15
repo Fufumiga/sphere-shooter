@@ -17,17 +17,58 @@ html {
 }
 
 div#score-meter {
+  position: absolute;
   padding: 20px;
   justify-content: center;
-  align-items: center;
-  position: absolute;
+  text-align: center;
   color: white;
   font-size: 30px;
   float: left;
   user-select: none;
 }
 
+div#menu-panel {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2px solid white;
+  background: rgba(1, 32, 83, 0.89);
+  justify-content: center;
+}
+
+div#start-panel {
+  margin-top: 25%;
+  text-align: center;
+  justify-items: center;
+  color: white;
+  font-size: 30px;
+  user-select: none;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+
+div#start-panel button {
+  border: 2px solid white;
+  background: rgba(2, 47, 119, 0.698);
+  color: white;
+  font-size: 20px;
+  text-align: center;
+  padding: 20px 25px;
+  margin-top: 30px;
+  border-radius: 10%;
+}
+
+div#start-panel button:hover {
+  background: rgba(4, 75, 190, 0.698);
+}
+
+div#start-panel h1 {
+  font-size: 50px;
+}
 
 .main-canvas {
   position: absolute;
+}
+
+.hidden {
+  display: none;
 }
