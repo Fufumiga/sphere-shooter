@@ -140,6 +140,7 @@ var projectiles = [];
 var enemies = [];
 var particles = [];
 var animationID;
+var enemySpawnInterval;
 //#endregion
 
 //#region Funções
@@ -157,8 +158,8 @@ function getRandomBetween(min, max) {
 }
 
 function spawnEnemies() {
+  enemySpawnInterval = setInterval(() => {
 
-  setInterval(() => {
     const radius = getRandomBetween(9, 60);
 
     const randomColor = Math.random() * 360;
@@ -325,6 +326,7 @@ function startGame() {
 
 function endGame() {
   cancelAnimationFrame(animationID);
+  clearInterval(enemySpawnInterval);
   isStopped = true;
   startPanel.className = "";
   scoreboard.className = "hidden";
